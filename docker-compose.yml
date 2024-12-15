@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  wishlist:
+    container_name: wishlist-app
+    build: ./
+    ports:
+      - ${WISHLIST_HOSTPORT}:8080
+    env_file:
+      - .env
+    restart: always
+  postgres:
+    container_name: wishlist-postgres
+    image: postgres:16.4
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+volumes:
+  postgresdata:
