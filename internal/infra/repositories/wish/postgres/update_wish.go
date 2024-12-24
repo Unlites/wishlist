@@ -15,7 +15,7 @@ func (wrp *WishRepositoryPostgres) UpdateWish(ctx context.Context, wish domain.W
 	defer conn.Release()
 
 	query := `
-		UPDATE wishes
+		UPDATE wishlist.wishes
 		SET title = $1, description = $2, is_reserved = $3
 		WHERE id = $4
 	`

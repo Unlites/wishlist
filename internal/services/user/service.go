@@ -8,6 +8,7 @@ import (
 
 type UserRepository interface {
 	GetUserById(ctx context.Context, userId int) (domain.User, error)
+	GetUserByName(ctx context.Context, name string) (domain.User, error)
 	AddUser(ctx context.Context, user domain.User) (int, error)
 }
 
@@ -18,7 +19,6 @@ type Hasher interface {
 
 type TokenManager interface {
 	GenerateToken(ctx context.Context, sub string) (string, error)
-	ParseUserId(ctx context.Context, token string) (int, error)
 }
 
 type UserService struct {

@@ -9,16 +9,16 @@ import (
 )
 
 func (us *UserService) Login(ctx context.Context, user domain.User) (string, error) {
-	existingUser, err := us.repo.GetUserById(ctx, user.Id)
+	existingUser, err := us.repo.GetUserByName(ctx, user.Name)
 	if err != nil {
 		return "", fmt.Errorf("GetUserById: %w", err)
 	}
 
-	if !us.hasher.Compare(ctx, existingUser.Password, user.Password) {
+	if !us.hasher.Compare(ctx, user.Password, existingUser.Password) {
 		return "", fmt.Errorf("%v, wrong password", domain.ErrUnauthorized)
 	}
 
-	token, err := us.tokenManager.GenerateToken(ctx, strconv.Itoa(user.Id))
+	token, err := us.tokenManager.GenerateToken(ctx, strconv.Itoa(existingUser.Id))
 	if err != nil {
 		return "", fmt.Errorf("GenerateToken: %w", err)
 	}

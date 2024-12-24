@@ -15,7 +15,7 @@ func (wrp *WishRepositoryPostgres) AddWish(ctx context.Context, wish domain.Wish
 	defer conn.Release()
 
 	query := `
-		INSERT INTO wishes (title, description, is_reserved, user_id, created_at) 
+		INSERT INTO wishlist.wishes (title, description, is_reserved, user_id, created_at) 
 		VALUES ($1, $2, $3, $4, NOW()) RETURNING id
 	`
 

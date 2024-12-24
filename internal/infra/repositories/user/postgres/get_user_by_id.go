@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/Unlites/wishlist/internal/domain"
+	"github.com/jackc/pgx/v5"
 )
 
 func (urp *UserRepositoryPostgres) GetUserById(ctx context.Context, userId int) (domain.User, error) {
@@ -14,11 +16,15 @@ func (urp *UserRepositoryPostgres) GetUserById(ctx context.Context, userId int) 
 	}
 	defer conn.Release()
 
-	query := "SELECT id, name, password_hash FROM users WHERE id = $1"
+	query := "SELECT id, name, password_hash FROM wishlist.users WHERE id = $1"
 
 	var user domain.User
 
 	if err := conn.QueryRow(ctx, query, userId).Scan(&user.Id, &user.Name, &user.Password); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.User{}, domain.ErrNotFound
+		}
+
 		return domain.User{}, fmt.Errorf("conn.QueryRow.Scan: %w", err)
 	}
 

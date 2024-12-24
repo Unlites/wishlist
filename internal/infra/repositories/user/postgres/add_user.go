@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Unlites/wishlist/internal/domain"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func (urp *UserRepositoryPostgres) AddUser(ctx context.Context, user domain.User) (int, error) {
@@ -15,11 +16,15 @@ func (urp *UserRepositoryPostgres) AddUser(ctx context.Context, user domain.User
 	defer conn.Release()
 
 	query := `
-		INSERT INTO users (name, password_hash) 
+		INSERT INTO wishlist.users (name, password_hash) 
 		VALUES ($1, $2) RETURNING id
 	`
 
 	if err := conn.QueryRow(ctx, query, user.Name, user.Password).Scan(&user.Id); err != nil {
+		pgErr, ok := err.(*pgconn.PgError)
+		if ok && pgErr.Code == PgDuplicateErrorCode {
+			return 0, fmt.Errorf("user with name %s %w", user.Name, domain.ErrAlreadyExists)
+		}
 		return 0, fmt.Errorf("conn.QueryRow.Scan: %w", err)
 	}
 

@@ -16,7 +16,7 @@ func (wrp *WishRepositoryPostgres) GetWishesByUserId(ctx context.Context, userId
 
 	query := `
 		SELECT id, title, description, is_reserved, user_id, created_at
-		FROM wishes
+		FROM wishlist.wishes
 		WHERE user_id = $1
 	`
 

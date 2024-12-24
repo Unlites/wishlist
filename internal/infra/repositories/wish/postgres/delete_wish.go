@@ -12,7 +12,7 @@ func (wrp *WishRepositoryPostgres) DeleteWish(ctx context.Context, wishId int) e
 	}
 	defer conn.Release()
 
-	query := "DELETE FROM wishes WHERE id = $1"
+	query := "DELETE FROM wishlist.wishes WHERE id = $1"
 
 	if _, err := conn.Exec(ctx, query, wishId); err != nil {
 		return fmt.Errorf("conn.Exec: %w", err)

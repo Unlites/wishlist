@@ -9,12 +9,10 @@ RUN go mod download
 
 COPY . .
 
-CMD ["go", "run", "./cmd/wishlist/main.go"]
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w" -o wishlist ./cmd/wishlist/main.go
 
-# RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w" -o wishlist ./cmd/wishlist/main.go
+FROM scratch
 
-# FROM scratch
+COPY --from=builder /app/wishlist /usr/local/bin/wishlist
 
-# COPY --from=builder /app/wishlist /usr/local/bin/wishlist
-
-# CMD ["/usr/local/bin/wishlist"]
+CMD ["/usr/local/bin/wishlist"]

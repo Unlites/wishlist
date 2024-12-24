@@ -2,6 +2,8 @@ package domain
 
 import "errors"
 
-var ErrNotFound = errors.New("not found")
-var ErrForbidden = errors.New("forbidden")
-var ErrUnauthorized = errors.New("unauthorized")
+var (
+	ErrNotFound      = errors.New("not found")
+	ErrUnauthorized  = errors.New("unauthorized")
+	ErrAlreadyExists = errors.New("already exists")
+)

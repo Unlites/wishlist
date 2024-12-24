@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/Unlites/wishlist/internal/domain"
+	"github.com/jackc/pgx"
 )
 
 func (wrp *WishRepositoryPostgres) GetWishById(ctx context.Context, wishId int) (domain.Wish, error) {
@@ -16,7 +18,7 @@ func (wrp *WishRepositoryPostgres) GetWishById(ctx context.Context, wishId int) 
 
 	query := `
 		SELECT id, title, description, is_reserved, user_id, created_at
-		FROM wishes
+		FROM wishlist.wishes
 		WHERE id = $1
 	`
 
@@ -30,6 +32,10 @@ func (wrp *WishRepositoryPostgres) GetWishById(ctx context.Context, wishId int) 
 		&wish.UserId,
 		&wish.CreatedAt,
 	); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.Wish{}, domain.ErrNotFound
+		}
+
 		return domain.Wish{}, fmt.Errorf("conn.QueryRow.Scan: %w", err)
 	}
 
