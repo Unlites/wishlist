@@ -20,6 +20,7 @@ import (
 	"github.com/Unlites/wishlist/internal/services/user"
 	"github.com/Unlites/wishlist/internal/services/wish"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -63,9 +64,11 @@ func main() {
 	wishHandler.RegisterRoutes(mux, "/api/v1/users/{user_id}/wishes")
 	userHandler.RegisterRoutes(mux, "/api/v1/users")
 
+	handler := cors.AllowAll().Handler(mux)
+
 	srv := &http.Server{
 		Addr:         cfg.HttpServer.Address,
-		Handler:      mux,
+		Handler:      handler,
 		ReadTimeout:  cfg.HttpServer.ReadTimeout,
 		WriteTimeout: cfg.HttpServer.WriteTimeout,
 		IdleTimeout:  cfg.HttpServer.IdleTimeout,
