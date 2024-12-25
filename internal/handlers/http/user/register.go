@@ -47,8 +47,8 @@ func (uh *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		status := http.StatusInternalServerError
 
-		if errors.Is(err, domain.ErrNotFound) {
-			status = http.StatusUnauthorized
+		if errors.Is(err, domain.ErrAlreadyExists) {
+			status = http.StatusBadRequest
 		}
 
 		http.Error(w, fmt.Errorf("service.Register: %w", err).Error(), status)
