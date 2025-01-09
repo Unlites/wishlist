@@ -1,9 +1,10 @@
-.error {
-    color: red;
+body {
+    background-color: rgb(232, 232, 232);
 }
 
-.logout_btn {
-    padding: 10px 15px;
-    background-color: red;
-    color: white;
+.logout-btn {
+    right: 0;
+    bottom: 0;
+    margin: 15px;
+    position: absolute;
 }

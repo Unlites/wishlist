@@ -12,6 +12,7 @@ const api = axios.create();
 api.interceptors.response.use(
     response => response,
     error => {
+        $('.alert').alert();
         if (error.response && error.response.status === 401) {
             router.push('/auth');
         }
@@ -40,7 +41,15 @@ const AuthPage = {
                 });
                 this.error = null;
             } catch (error) {
-                this.error = 'Registration failed';
+                if (error.response && error.response.data) {
+                    if (error.response.status === 400) {
+                        alert('Ошибка валидации: логин и пароль должны быть не менее 4 символов либо такой пользователь уже существует');
+                    } else {
+                        alert('Ошибка регистрации: ' + error.response.data.message);
+                    }
+                } else {
+                    alert('Ошибка регистрации, обратитесь к администратору');
+                }
             }
         },
         async login() {
@@ -50,11 +59,21 @@ const AuthPage = {
                     password: this.user.password
                 });
                 this.user.token = response.data.token;
+                const tokenPayload = JSON.parse(atob(this.user.token.split('.')[1]));                
                 localStorage.setItem('token', this.user.token);
+                localStorage.setItem('user_id', tokenPayload.sub);
                 this.$router.push('/');
             } catch (error) {
-                this.error = 'Login failed';
-            }
+                if (error.response && error.response.data) {
+                    if (error.response.status === 401) {
+                        alert('Ошибка аутентификации: неверный логин или пароль');
+                    } else {
+                        alert('Ошибка аутентификации: ' + error.response.data.message);
+                    }
+                } else {
+                    alert('Ошибка аутентификации, обратитесь к администратору');
+                }
+            }  
         }
     },
     template: `
@@ -95,7 +114,7 @@ const App = {
                 });
                 this.wishes = response.data;
             } catch (error) {
-                this.error = 'Failed to fetch wishes';
+                alert('Ошибка загрузки списка желаний');
             }
         },
         async addWish() {
@@ -107,7 +126,7 @@ const App = {
                 this.newWish = { title: '', description: '' };
                 await this.fetchWishes();
             } catch (error) {
-                this.error = 'Failed to add wish';
+                alert('Ошибка добавления желания');
             }
         },
         async updateWishDetails() {
@@ -118,7 +137,7 @@ const App = {
                 this.updateWish = { id: null, title: '', description: '', is_reserved: false };
                 await this.fetchWishes();
             } catch (error) {
-                this.error = 'Failed to update wish';
+                alert('Ошибка обновления желания'); 
             }
         },
         async deleteWish(wishId) {
@@ -128,12 +147,16 @@ const App = {
                 });
                 await this.fetchWishes();
             } catch (error) {
-                this.error = 'Failed to delete wish';
+                alert('Ошибка удаления желания');
             }
         },
         logout() {
             localStorage.removeItem('token');
+            localStorage.removeItem('user_id');
             this.$router.push('/auth');
+        },
+        isOwnUser() {
+            return localStorage.getItem('user_id') == this.$route.params.user_id;
         }
     },
     mounted() {
@@ -142,25 +165,24 @@ const App = {
     template: `
     <div class="app p-3">
         <h1 class="text-center">Wishlist</h1>
-
-        <div v-if="error" style="color: red;">{{ error }}</div>
+        <hr>
 
         <div>
-            <h2>Wishes</h2>
-
-            <div class="text-center m-3 row">
-                <h3>Add Wish</h3>
-                <input v-model="newWish.title" placeholder="Название" />
-                <input v-model="newWish.description" placeholder="Ссылка/описание" />
-                <button @click="addWish" class="btn btn-primary col-3 mx-auto">Добавить желание</button>
+            <div v-if="isOwnUser()" class="text-center m-5 row col-6 col-lg-3 mx-auto border border-2 border-success px-3 py-5 rounded">
+                <h3>Новое желание</h3>
+                <input class="m-1" v-model="newWish.title" placeholder="Название" />
+                <input class="m-1" v-model="newWish.description" placeholder="Ссылка/описание" />
+                <button @click="addWish" class="m-1 btn btn-primary col-6 mx-auto">Добавить желание</button>
             </div>
 
             <ul>
-                <li v-for="wish in wishes" :key="wish.id">
+                <div v-for="wish in wishes" :key="wish.id" class="col-8 col-lg-6 m-3 border border-1 border-dark px-3 py-5 rounded mx-auto">
                     {{ wish.title }} - {{ wish.description }}
-                    <button @click="updateWish = { ...wish }" class="btn btn-warning">Редактировать</button>
-                    <button @click="deleteWish(wish.id)" class="btn btn-danger">Удалить</button>
-                </li>
+                    <button v-if="isOwnUser()" @click="updateWish = { ...wish }" class="btn btn-warning">Редактировать</button>
+                    <button v-if="isOwnUser()" @click="deleteWish(wish.id)" class="btn btn-danger">Удалить</button>
+                </div>
+
+                <div class="text-center" v-if="wishes.length === 0">Список желаний пуст</div>
             </ul>
 
             <div v-if="updateWish.id">
@@ -174,7 +196,7 @@ const App = {
                 <button @click="updateWishDetails" class="btn btn-primary">Update Wish</button>
             </div>
         </div>
-        <button @click="logout" class="btn btn-danger">Logout</button>
+        <button @click="logout" class="btn btn-danger logout-btn">Выйти</button>
     </div>
     `
 };
