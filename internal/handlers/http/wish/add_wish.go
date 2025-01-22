@@ -20,8 +20,8 @@ type addWishRequest struct {
 func (r *addWishRequest) Validate() error {
 	return validation.ValidateStruct(
 		r,
-		validation.Field(&r.Title, validation.Required, validation.Length(1, 100)),
-		validation.Field(&r.Description, validation.Length(1, 1000)),
+		validation.Field(&r.Title, validation.Required, validation.Length(1, 300)),
+		validation.Field(&r.Description, validation.Length(1, 5000)),
 	)
 }
 

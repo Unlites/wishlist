@@ -15,7 +15,7 @@ func (us *UserService) Login(ctx context.Context, user domain.User) (string, err
 	}
 
 	if !us.hasher.Compare(ctx, user.Password, existingUser.Password) {
-		return "", fmt.Errorf("%v, wrong password", domain.ErrUnauthorized)
+		return "", fmt.Errorf("%w, wrong password", domain.ErrUnauthorized)
 	}
 
 	token, err := us.tokenManager.GenerateToken(ctx, strconv.Itoa(existingUser.Id))
