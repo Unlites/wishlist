@@ -12,7 +12,6 @@ const api = axios.create();
 api.interceptors.response.use(
     response => response,
     error => {
-        $('.alert').alert();
         if (error.response && error.response.status === 401) {
             router.push('/auth');
         }
@@ -29,7 +28,7 @@ const AuthPage = {
                 password: '',
                 token: ''
             },
-            error: null
+            isRegister: false,
         };
     },
     methods: {
@@ -39,13 +38,17 @@ const AuthPage = {
                     name: this.user.name,
                     password: this.user.password
                 });
-                this.error = null;
+                this.login();
             } catch (error) {
                 if (error.response && error.response.data) {
                     if (error.response.status === 400) {
-                        alert('Ошибка валидации: логин и пароль должны быть не менее 4 символов либо такой пользователь уже существует');
+                        if (error.response.data.includes('password: the length must be between 4 and 64')) {
+                            alert('Пароль должен быть не менее 4 символов');
+                        } else {
+                            alert('Такой пользователь уже существует');
+                        }
                     } else {
-                        alert('Ошибка регистрации: ' + error.response.data.message);
+                        alert('Ошибка регистрации: ' + error.response.data);                        
                     }
                 } else {
                     alert('Ошибка регистрации, обратитесь к администратору');
@@ -62,13 +65,16 @@ const AuthPage = {
                 const tokenPayload = JSON.parse(atob(this.user.token.split('.')[1]));                
                 localStorage.setItem('token', this.user.token);
                 localStorage.setItem('user_id', tokenPayload.sub);
-                this.$router.push('/');
+                const redirectTo = this.$route.query.from || `/${tokenPayload.sub}`;
+                this.$router.push(redirectTo);
             } catch (error) {
                 if (error.response && error.response.data) {
                     if (error.response.status === 401) {
-                        alert('Ошибка аутентификации: неверный логин или пароль');
+                        alert('Неверный логин или пароль');
+                    } else if (error.response.status === 400) {
+                        alert('Пароль должен быть не менее 4 символов');
                     } else {
-                        alert('Ошибка аутентификации: ' + error.response.data.message);
+                        alert('Ошибка аутентификации: ' + error.response.data);
                     }
                 } else {
                     alert('Ошибка аутентификации, обратитесь к администратору');
@@ -77,13 +83,25 @@ const AuthPage = {
         }
     },
     template: `
-    <div class="auth-page">
-        <h1>Authentication</h1>
-        <div v-if="error" class="error">{{ error }}</div>
-        <input v-model="user.name" placeholder="Name" />
-        <input v-model="user.password" type="password" placeholder="Password" />
-        <button @click="register">Register</button>
-        <button @click="login">Login</button>
+    <div class="auth p-3">
+        <h1 class="text-center">Wishlist</h1>
+        <hr>
+
+        <div class="text-center m-5 row col-6 col-lg-4 mx-auto border border-2 border-dark px-3 py-5 rounded">
+        <h3 class="text-center" v-if="!isRegister">
+            Вход | <a href="#" class="link-primary" @click="isRegister = true">Регистрация</a>
+        </h3>
+        <h3 class="text-center" v-else>
+            <a href="#" class="link-primary" @click="isRegister = fasle">Вход</a> | Регистрация
+        </h3>
+
+        <input class="mt-2" v-model="user.name" placeholder="Логин" />
+            <input class="mt-2" v-model="user.password" type="password" placeholder="Пароль" />
+            <div>
+                <button v-if="isRegister" class="mt-3 btn btn-primary mx-auto px-5" @click="register">Зарегистрироваться</button>
+                <button v-else class="mt-3 btn btn-primary mx-auto px-5" @click="login">Войти</button>
+            </div>
+        </div>
     </div>
     `
 };
@@ -112,7 +130,10 @@ const App = {
                 const response = await api.get(`${API_BASE_URL}/users/${this.$route.params.user_id}/wishes`, {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                 });
-                this.wishes = response.data;
+                this.wishes = response.data.map(wish => {
+                    wish.description = linkifyHtml(wish.description, { attributes: { target: '_blank' } });
+                    return wish;
+                });
             } catch (error) {
                 alert('Ошибка загрузки списка желаний');
             }
@@ -126,7 +147,21 @@ const App = {
                 this.newWish = { title: '', description: '' };
                 await this.fetchWishes();
             } catch (error) {
-                alert('Ошибка добавления желания');
+                if (error.response && error.response.data) {
+                    if (error.response.status === 400) {
+                        if (error.response.data.includes('title: cannot be blank')) {
+                            alert('Название не может быть пустым');
+                        } else if (error.response.data.includes('title: the length must be between 1 and 300')) {
+                            alert('Название не может быть больше 300 символов');
+                        } else if (error.response.data.includes('description: the length must be between 1 and 5000')) {
+                            alert('Описание не может быть больше 5000 символов');
+                        }
+                    } else {
+                        alert('Ошибка добавления желания: ' + error.response.data);
+                    }
+                } else {
+                    alert('Ошибка добавления желания');
+                }
             }
         },
         async updateWishDetails() {
@@ -137,7 +172,25 @@ const App = {
                 this.updateWish = { id: null, title: '', description: '', is_reserved: false };
                 await this.fetchWishes();
             } catch (error) {
-                alert('Ошибка обновления желания'); 
+                console.log(error);
+                console.log(error.response.data.includes('title: cannot be blank'));
+                
+                
+                if (error.response && error.response.data) {
+                    if (error.response.status === 400) {
+                        if (error.response.data.includes('title: cannot be blank')) {
+                            alert('Название не может быть пустым');
+                        } else if (error.response.data.includes('title: the length must be between 1 and 300')) {
+                            alert('Название не может быть больше 300 символов');
+                        } else if (error.response.data.includes('description: the length must be between 1 and 5000')) {
+                            alert('Описание не может быть больше 5000 символов');
+                        }
+                    } else {
+                        alert('Ошибка обновления желания: ' + error.response.data);                        
+                    }
+                } else {
+                    alert('Ошибка обновления желания'); 
+                }
             }
         },
         async deleteWish(wishId) {
@@ -148,6 +201,19 @@ const App = {
                 await this.fetchWishes();
             } catch (error) {
                 alert('Ошибка удаления желания');
+            }
+        },
+        async updateWishReserving(wishId, isReserved) {
+            try {
+                await api.put(`${API_BASE_URL}/users/${this.$route.params.user_id}/wishes/${wishId}/update-reserving`, 
+                    {
+                        is_reserved: isReserved
+                    }, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                });
+                await this.fetchWishes();
+            } catch (error) {
+                alert('Ошибка резервирования желания');
             }
         },
         logout() {
@@ -168,33 +234,37 @@ const App = {
         <hr>
 
         <div>
-            <div v-if="isOwnUser()" class="text-center m-5 row col-6 col-lg-3 mx-auto border border-2 border-success px-3 py-5 rounded">
+            <div v-if="isOwnUser()" class="text-center m-5 row col-6 col-lg-3 mx-auto border border-2 border-dark px-3 py-5 rounded">
                 <h3>Новое желание</h3>
                 <input class="m-1" v-model="newWish.title" placeholder="Название" />
-                <input class="m-1" v-model="newWish.description" placeholder="Ссылка/описание" />
-                <button @click="addWish" class="m-1 btn btn-primary col-6 mx-auto">Добавить желание</button>
+                <textarea class="m-1" v-model="newWish.description" placeholder="Ссылка/описание" />
+                <button @click="addWish" class="m-1 btn btn-primary col-lg-6 mx-auto">Добавить желание</button>
             </div>
 
             <ul>
-                <div v-for="wish in wishes" :key="wish.id" class="col-8 col-lg-6 m-3 border border-1 border-dark px-3 py-5 rounded mx-auto">
-                    {{ wish.title }} - {{ wish.description }}
-                    <button v-if="isOwnUser()" @click="updateWish = { ...wish }" class="btn btn-warning">Редактировать</button>
-                    <button v-if="isOwnUser()" @click="deleteWish(wish.id)" class="btn btn-danger">Удалить</button>
+                <div v-for="wish in wishes" :key="wish.id" class="text-center col-8 col-lg-6 m-3 border border-1 border-dark px-3 py-5 rounded mx-auto">
+                    <div v-if="wish.isUpdating" class="row text-center col-10 col-lg-8 mx-auto">
+                        <input class="mt-2" v-model="updateWish.title" placeholder="Название" />
+                        <textarea class="mt-2" v-model="updateWish.description" placeholder="Ссылка/описание" />
+                        <div class="mt-2">
+                            <button @click="updateWishDetails" class="mx-1 btn btn-primary">Сохранить</button>
+                            <button @click="updateWish = { id: null, title: '', description: '', is_reserved: false }; wish.isUpdating = false" class="btn btn-outline-danger">Отмена</button>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <h3 class="text-break">{{ wish.title }}</h3>
+                        <p class="text-break" v-html="wish.description"></p>
+                        <div class="mt-3">
+                            <button v-if="isOwnUser()" @click="updateWish = { ...wish }; wish.isUpdating = true" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo" class="btn btn-outline-dark mx-1">Редактировать</button>
+                            <button v-if="isOwnUser()" @click="deleteWish(wish.id)" class="btn btn-outline-danger">Удалить</button>
+                            <button v-if="!isOwnUser() && !wish.is_reserved" @click="updateWishReserving(wish.id, true)" class="btn btn-outline-primary">Забронировать</button>
+                            <button v-if="!isOwnUser() && wish.is_reserved" class="btn btn-primary px-5" disabled>Забронировано</button>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="text-center" v-if="wishes.length === 0">Список желаний пуст</div>
+                <h2 class="text-center mt-5" v-if="wishes.length === 0">Список желаний пуст</h2>
             </ul>
-
-            <div v-if="updateWish.id">
-                <h3>Edit Wish</h3>
-                <input v-model="updateWish.title" placeholder="Title" />
-                <input v-model="updateWish.description" placeholder="Description" />
-                <label>
-                    Reserved:
-                    <input v-model="updateWish.is_reserved" type="checkbox" />
-                </label>
-                <button @click="updateWishDetails" class="btn btn-primary">Update Wish</button>
-            </div>
         </div>
         <button @click="logout" class="btn btn-danger logout-btn">Выйти</button>
     </div>
@@ -204,7 +274,7 @@ const App = {
 // Define routes
 const routes = [
     { path: '/auth', component: AuthPage },
-    { path: '/:user_id', component: App }
+    { path: '/:user_id', component: App, meta: { requiresAuth: true } }
 ];
 
 // Create router
@@ -213,5 +283,14 @@ const router = createRouter({
     routes
 });
 
+router.beforeEach((to, from, next) => {    
+    if (to.meta.requiresAuth && !localStorage.getItem('token')) {
+        next({ path: '/auth', query: { from: to.params.user_id } });
+    } else {
+        next();
+    }
+});
+
 // Mount the Vue app
 createApp({ template: '<router-view />' }).use(router).mount('#app');
+
