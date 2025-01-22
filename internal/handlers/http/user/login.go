@@ -47,7 +47,7 @@ func (uh *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		status := http.StatusInternalServerError
 
-		if errors.Is(err, domain.ErrNotFound) {
+		if errors.Is(err, domain.ErrNotFound) || errors.Is(err, domain.ErrUnauthorized) {
 			status = http.StatusUnauthorized
 		}
 
