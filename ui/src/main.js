@@ -280,7 +280,14 @@ const App = {
 // Define routes
 const routes = [
     { path: '/auth', component: AuthPage },
-    { path: '/:user_id', component: App, meta: { requiresAuth: true } }
+    { path: '/:user_id', component: App, meta: { requiresAuth: true } },
+    { 
+        path: '/', 
+        redirect: () => {
+            const userId = localStorage.getItem('user_id');
+            return userId ? `/${userId}` : '/auth';
+        }
+    },
 ];
 
 // Create router
