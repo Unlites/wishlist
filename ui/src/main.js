@@ -1,13 +1,10 @@
-// Import necessary modules
 import { createApp } from 'vue';
 import axios from 'axios';
 import { createRouter, createWebHistory } from 'vue-router';
 import '../assets/styles.css';
 
-// Define API base URL
-const API_BASE_URL = 'http://127.0.0.1:8080/api/v1';
+const API_BASE_URL = '/api/v1';
 
-// Helper for Axios instance with interceptor
 const api = axios.create();
 api.interceptors.response.use(
     response => response,
@@ -19,9 +16,19 @@ api.interceptors.response.use(
     }
 );
 
-// Auth Page Component
 const AuthPage = {
-    data() {
+
+/*************  ✨ Codeium Command ⭐  *************/
+    /**
+     * AuthPage component state.
+     *
+     * @property {Object} user - user credentials and token.
+     * @property {string} user.name - user name.
+     * @property {string} user.password - user password.
+     * @property {string} user.token - user token.
+     * @property {boolean} isRegister - whether registration page is shown.
+     */
+/******  1d9838bc-b3d3-4da9-af3d-1081e553168c  *******/    data() {
         return {
             user: {
                 name: '',
@@ -106,7 +113,6 @@ const AuthPage = {
     `
 };
 
-// Main App Component
 const App = {
     data() {
         return {
@@ -291,6 +297,5 @@ router.beforeEach((to, from, next) => {
     }
 });
 
-// Mount the Vue app
 createApp({ template: '<router-view />' }).use(router).mount('#app');
 

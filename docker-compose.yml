@@ -20,5 +20,10 @@ services:
     volumes:
       - postgresdata:/var/lib/postgresql/data
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+  ui:
+    build: ./ui
+    ports:
+      - "80:80"
+    restart: always
 volumes:
   postgresdata:
