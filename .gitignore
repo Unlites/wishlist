@@ -30,3 +30,4 @@ ui/*.sln
 ui/*.sw?
 
 ui/*.tsbuildinfo
+ui/nginx/certbot

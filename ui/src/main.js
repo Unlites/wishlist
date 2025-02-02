@@ -261,7 +261,7 @@ const App = {
                         <h3 class="text-break">{{ wish.title }}</h3>
                         <p class="text-break" v-html="wish.description"></p>
                         <div class="mt-3">
-                            <button v-if="isOwnUser()" @click="updateWish = { ...wish }; wish.isUpdating = true" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo" class="btn btn-outline-dark mx-1">Редактировать</button>
+                            <button v-if="isOwnUser()" @click="updateWish = { ...wish }; wish.isUpdating = true" class="btn btn-outline-dark mx-1">Редактировать</button>
                             <button v-if="isOwnUser()" @click="deleteWish(wish.id)" class="btn btn-outline-danger">Удалить</button>
                             <button v-if="!isOwnUser() && !wish.is_reserved" @click="updateWishReserving(wish.id, true)" class="btn btn-outline-primary">Забронировать</button>
                             <button v-if="!isOwnUser() && wish.is_reserved" class="btn btn-primary px-5" disabled>Забронировано</button>
