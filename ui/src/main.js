@@ -229,14 +229,14 @@ const App = {
         <hr>
 
         <div>
-            <div v-if="isOwnUser()" class="text-center m-5 row col-6 col-lg-3 mx-auto border border-2 border-dark px-3 py-5 rounded">
+            <div v-if="isOwnUser()" class="text-center m-5 row col-8 col-lg-3 mx-auto border border-2 border-dark px-3 py-5 rounded">
                 <h3>Новое желание</h3>
                 <input class="m-1" v-model="newWish.title" placeholder="Название" />
                 <textarea class="m-1" v-model="newWish.description" placeholder="Ссылка/описание" />
                 <button @click="addWish" class="m-1 btn btn-primary col-lg-6 mx-auto">Добавить желание</button>
             </div>
 
-            <ul>
+            <div>
                 <div v-for="wish in wishes" :key="wish.id" class="text-center col-8 col-lg-6 m-3 border border-1 border-dark px-3 py-5 rounded mx-auto">
                     <div v-if="wish.isUpdating" class="row text-center col-10 col-lg-8 mx-auto">
                         <input class="mt-2" v-model="updateWish.title" placeholder="Название" />
@@ -250,7 +250,7 @@ const App = {
                         <h3 class="text-break">{{ wish.title }}</h3>
                         <p class="text-break" v-html="wish.description"></p>
                         <div class="mt-3">
-                            <button v-if="isOwnUser()" @click="updateWish = { ...wish }; wish.isUpdating = true" class="btn btn-outline-dark mx-1">Редактировать</button>
+                            <button v-if="isOwnUser()" @click="updateWish = { ...wish }; wish.isUpdating = true" class="btn btn-outline-dark m-1">Редактировать</button>
                             <button v-if="isOwnUser()" @click="deleteWish(wish.id)" class="btn btn-outline-danger">Удалить</button>
                             <button v-if="!isOwnUser() && !wish.is_reserved" @click="updateWishReserving(wish.id, true)" class="btn btn-outline-primary">Забронировать</button>
                             <button v-if="!isOwnUser() && wish.is_reserved" class="btn btn-primary px-5" disabled>Забронировано</button>
@@ -259,7 +259,7 @@ const App = {
                 </div>
 
                 <h2 class="text-center mt-5" v-if="wishes.length === 0">Список желаний пуст</h2>
-            </ul>
+            </div>
         </div>
         <button @click="logout" class="btn btn-danger logout-btn">Выйти</button>
     </div>
@@ -293,5 +293,6 @@ router.beforeEach((to, from, next) => {
     }
 });
 
-createApp({ template: '<router-view />' }).use(router).mount('#app');
-
+const app = createApp({ template: '<router-view />' });
+app.use(router);
+app.mount('#app');
