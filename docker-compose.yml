@@ -22,22 +22,24 @@ services:
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
   nginx:
     container_name: wishlist-nginx
-    build: ./ui
+    build:
+      context: ./ui
+      dockerfile: ./nginx/Dockerfile
     ports:
       - 80:80
       - 443:443
     restart: always
     volumes:
-      - ./ui/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./ui/nginx/certbot/conf:/etc/letsencrypt
-      - ./ui/nginx/certbot/www:/var/www/certbot
+      - .nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - .nginx/certbot/conf:/etc/letsencrypt
+      - .nginx/certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
   certbot:
     container_name: wishlist-certbot
     image: certbot/certbot
     volumes:
-      - ./ui/nginx/certbot/conf:/etc/letsencrypt
-      - ./ui/nginx/certbot/www:/var/www/certbot
+      - .nginx/certbot/conf:/etc/letsencrypt
+      - .nginx/certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'" 
 volumes:
   postgresdata:
