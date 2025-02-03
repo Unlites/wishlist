@@ -17,18 +17,7 @@ api.interceptors.response.use(
 );
 
 const AuthPage = {
-
-/*************  ✨ Codeium Command ⭐  *************/
-    /**
-     * AuthPage component state.
-     *
-     * @property {Object} user - user credentials and token.
-     * @property {string} user.name - user name.
-     * @property {string} user.password - user password.
-     * @property {string} user.token - user token.
-     * @property {boolean} isRegister - whether registration page is shown.
-     */
-/******  1d9838bc-b3d3-4da9-af3d-1081e553168c  *******/    data() {
+    data() {
         return {
             user: {
                 name: '',
