@@ -83,7 +83,7 @@ const AuthPage = {
         <h1 class="text-center">Wishlist</h1>
         <hr>
 
-        <div class="text-center m-5 row col-6 col-lg-4 mx-auto border border-2 border-dark px-3 py-5 rounded">
+        <div class="text-center m-5 row col-10 col-lg-4 mx-auto border border-2 border-dark px-3 py-5 rounded">
         <h3 class="text-center" v-if="!isRegister">
             Вход | <a href="#" class="link-primary" @click="isRegister = true">Регистрация</a>
         </h3>
