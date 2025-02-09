@@ -51,10 +51,12 @@ func (wh *WishHandler) AddWish(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	isReserved := false
+
 	id, err := wh.service.AddWish(ctx, domain.Wish{
 		Title:       req.Title,
 		Description: req.Description,
-		IsReserved:  false,
+		IsReserved:  &isReserved,
 		UserId:      userIdInt,
 	})
 	if err != nil {

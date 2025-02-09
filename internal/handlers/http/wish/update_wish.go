@@ -63,7 +63,7 @@ func (wh *WishHandler) UpdateWish(w http.ResponseWriter, r *http.Request) {
 		Id:          wishIdInt,
 		Title:       req.Title,
 		Description: req.Description,
-		IsReserved:  req.IsReserved,
+		IsReserved:  &req.IsReserved,
 		UserId:      userIdInt,
 	}); err != nil {
 		http.Error(w, fmt.Errorf("service.UpdateWish: %w", err).Error(), http.StatusInternalServerError)

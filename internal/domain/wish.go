@@ -7,6 +7,6 @@ type Wish struct {
 	UserId      int
 	Title       string
 	Description string
-	IsReserved  bool
+	IsReserved  *bool
 	CreatedAt   time.Time
 }

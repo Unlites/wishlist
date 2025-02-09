@@ -32,6 +32,6 @@ func (wh *WishHandler) RegisterRoutes(mux *http.ServeMux, prefix string) {
 	mux.Handle("POST "+prefix, wh.mwProvider.Auth(http.HandlerFunc(wh.AddWish)))
 	mux.Handle("PUT "+prefix+"/{wish_id}", wh.mwProvider.Auth(http.HandlerFunc(wh.UpdateWish)))
 	mux.Handle("DELETE "+prefix+"/{wish_id}", wh.mwProvider.Auth(http.HandlerFunc(wh.DeleteWish)))
-	mux.Handle("PUT "+prefix+"/{wish_id}/update-reserving", http.HandlerFunc(wh.UpdateWishReserving))
-	mux.Handle("GET "+prefix, http.HandlerFunc(wh.GetWishesByUserId))
+	mux.Handle("PUT "+prefix+"/{wish_id}/update-reserving", wh.mwProvider.Auth(http.HandlerFunc(wh.UpdateWishReserving)))
+	mux.Handle("GET "+prefix, wh.mwProvider.Auth(http.HandlerFunc(wh.GetWishesByUserId)))
 }

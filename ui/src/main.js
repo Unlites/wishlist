@@ -105,6 +105,7 @@ const AuthPage = {
 const App = {
     data() {
         return {
+            username: '',
             wishes: [],
             newWish: {
                 title: '',
@@ -167,10 +168,6 @@ const App = {
                 this.updateWish = { id: null, title: '', description: '', is_reserved: false };
                 await this.fetchWishes();
             } catch (error) {
-                console.log(error);
-                console.log(error.response.data.includes('title: cannot be blank'));
-                
-                
                 if (error.response && error.response.data) {
                     if (error.response.status === 400) {
                         if (error.response.data.includes('title: cannot be blank')) {
@@ -189,6 +186,9 @@ const App = {
             }
         },
         async deleteWish(wishId) {
+            if (!confirm('Вы действительно хотите удалить желание?')) {
+                return;
+            }
             try {
                 await api.delete(`${API_BASE_URL}/users/${this.$route.params.user_id}/wishes/${wishId}`, {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -211,6 +211,16 @@ const App = {
                 alert('Ошибка резервирования желания');
             }
         },
+        async fetchUsername() {
+            try {
+                const response = await api.get(`${API_BASE_URL}/users/${this.$route.params.user_id}`, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                });
+                this.username = response.data.name;
+            } catch (error) {
+                alert('Ошибка загрузки пользователя');
+            }
+        },
         logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('user_id');
@@ -221,11 +231,12 @@ const App = {
         }
     },
     mounted() {
+        this.fetchUsername();
         this.fetchWishes();
     },
     template: `
     <div class="app p-3">
-        <h1 class="text-center">Wishlist</h1>
+        <h1 class="text-center">Wishlist {{ username }}</h1>
         <hr>
 
         <div>
@@ -250,10 +261,16 @@ const App = {
                         <h3 class="text-break">{{ wish.title }}</h3>
                         <p class="text-break" v-html="wish.description"></p>
                         <div class="mt-3">
-                            <button v-if="isOwnUser()" @click="updateWish = { ...wish }; wish.isUpdating = true" class="btn btn-outline-dark m-1">Редактировать</button>
-                            <button v-if="isOwnUser()" @click="deleteWish(wish.id)" class="btn btn-outline-danger">Удалить</button>
-                            <button v-if="!isOwnUser() && !wish.is_reserved" @click="updateWishReserving(wish.id, true)" class="btn btn-outline-primary">Забронировать</button>
-                            <button v-if="!isOwnUser() && wish.is_reserved" class="btn btn-primary px-5" disabled>Забронировано</button>
+                            <div v-if="wish.is_reserved === true">
+                                <button class="btn btn-primary px-5" disabled>Забронировано</button>
+                            </div>
+                            <div v-else-if="wish.is_reserved === false">
+                                <button @click="updateWishReserving(wish.id, true)" class="btn btn-outline-primary">Забронировать</button>
+                            </div>
+                            <div v-else>
+                                <button @click="updateWish = { ...wish }; wish.isUpdating = true" class="btn btn-outline-dark m-1">Редактировать</button>
+                                <button @click="deleteWish(wish.id)" class="btn btn-outline-danger">Удалить</button>
+                            </div>
                         </div>
                     </div>
                 </div>

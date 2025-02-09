@@ -11,6 +11,6 @@ func (ws *WishService) UpdateWishReserving(ctx context.Context, wishId int, isRe
 		return fmt.Errorf("wishRepository.GetWishById: %w", err)
 	}
 
-	wish.IsReserved = isReserved
+	wish.IsReserved = &isReserved
 	return ws.wishRepo.UpdateWish(ctx, wish)
 }

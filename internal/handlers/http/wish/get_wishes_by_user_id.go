@@ -14,7 +14,7 @@ type wishResponse struct {
 	Id          int       `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
-	IsReserved  bool      `json:"is_reserved"`
+	IsReserved  *bool     `json:"is_reserved,omitempty"`
 	UserId      int       `json:"user_id"`
 	CreatedAt   time.Time `json:"created_at"`
 }
