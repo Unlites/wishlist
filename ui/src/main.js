@@ -2,6 +2,7 @@ import { createApp } from 'vue';
 import axios from 'axios';
 import { createRouter, createWebHistory } from 'vue-router';
 import '../assets/styles.css';
+import striptags from 'striptags';
 
 const API_BASE_URL = '/api/v1';
 
@@ -79,7 +80,7 @@ const AuthPage = {
         }
     },
     template: `
-    <div class="auth p-3">
+    <form @submit.prevent class="auth p-3">
         <h1 class="text-center">Wishlist</h1>
         <hr>
 
@@ -98,7 +99,7 @@ const AuthPage = {
                 <button v-else class="mt-3 btn btn-primary mx-auto px-5" @click="login">Войти</button>
             </div>
         </div>
-    </div>
+    </form>
     `
 };
 
@@ -228,6 +229,15 @@ const App = {
         },
         isOwnUser() {
             return localStorage.getItem('user_id') == this.$route.params.user_id;
+        },
+        startWishUpdating(wish) {
+            this.updateWish = { ...wish }; 
+            this.updateWish.description = striptags(wish.description);            
+            wish.isUpdating = true;
+        },
+        stopWishUpdating(wish) {
+            this.updateWish = { id: null, title: '', description: '', is_reserved: false };
+            wish.isUpdating = false;
         }
     },
     mounted() {
@@ -240,23 +250,23 @@ const App = {
         <hr>
 
         <div>
-            <div v-if="isOwnUser()" class="text-center m-5 row col-8 col-lg-3 mx-auto border border-2 border-dark px-3 py-5 rounded">
+            <form @submit.prevent="addWish" v-if="isOwnUser()" class="text-center m-5 row col-8 col-lg-3 mx-auto border border-2 border-dark px-3 py-5 rounded">
                 <h3>Новое желание</h3>
                 <input class="m-1" v-model="newWish.title" placeholder="Название" />
-                <textarea class="m-1" v-model="newWish.description" placeholder="Ссылка/описание" />
-                <button @click="addWish" class="m-1 btn btn-primary col-lg-6 mx-auto">Добавить желание</button>
-            </div>
+                <textarea @keydown.enter.exact.prevent="$refs.addWishButton.click()" class="m-1" v-model="newWish.description" placeholder="Ссылка/описание" />
+                <button ref="addWishButton" class="m-1 btn btn-primary col-lg-6 mx-auto">Добавить желание</button>
+            </form>
 
             <div>
                 <div v-for="wish in wishes" :key="wish.id" class="text-center col-8 col-lg-6 m-3 border border-1 border-dark px-3 py-5 rounded mx-auto">
-                    <div v-if="wish.isUpdating" class="row text-center col-10 col-lg-8 mx-auto">
+                    <form @submit.prevent="updateWishDetails" v-if="wish.isUpdating" class="row text-center col-10 col-lg-8 mx-auto">
                         <input class="mt-2" v-model="updateWish.title" placeholder="Название" />
-                        <textarea class="mt-2" v-model="updateWish.description" placeholder="Ссылка/описание" />
+                        <textarea @keydown.enter.exact.prevent="updateWishDetails" class="mt-2" v-model="updateWish.description" placeholder="Ссылка/описание" />
                         <div class="mt-2">
-                            <button @click="updateWishDetails" class="mx-1 btn btn-primary">Сохранить</button>
-                            <button @click="updateWish = { id: null, title: '', description: '', is_reserved: false }; wish.isUpdating = false" class="btn btn-outline-danger">Отмена</button>
+                            <button ref="updateWishButton" class="m-1 btn btn-primary">Сохранить</button>
+                            <button type="button" @click="stopWishUpdating(wish)" class="btn btn-outline-danger">Отмена</button>
                         </div>
-                    </div>
+                    </form>
                     <div v-else>
                         <h3 class="text-break">{{ wish.title }}</h3>
                         <p class="text-break" v-html="wish.description"></p>
@@ -268,7 +278,7 @@ const App = {
                                 <button @click="updateWishReserving(wish.id, true)" class="btn btn-outline-primary">Забронировать</button>
                             </div>
                             <div v-else>
-                                <button @click="updateWish = { ...wish }; wish.isUpdating = true" class="btn btn-outline-dark m-1">Редактировать</button>
+                                <button @click="startWishUpdating(wish)" class="btn btn-outline-dark m-1">Редактировать</button>
                                 <button @click="deleteWish(wish.id)" class="btn btn-outline-danger">Удалить</button>
                             </div>
                         </div>
