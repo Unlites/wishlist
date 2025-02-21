@@ -8,5 +8,16 @@ type Wish struct {
 	Title       string
 	Description string
 	IsReserved  *bool
+	ReservedBy  *int
 	CreatedAt   time.Time
+}
+
+func (w *Wish) SetReserved(isReserved bool, reservedBy int) {
+	w.IsReserved = &isReserved
+
+	if !isReserved {
+		w.ReservedBy = nil
+	} else {
+		w.ReservedBy = &reservedBy
+	}
 }

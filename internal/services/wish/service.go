@@ -11,6 +11,7 @@ type WishRepository interface {
 	GetWishById(ctx context.Context, wishId int) (domain.Wish, error)
 	AddWish(ctx context.Context, wish domain.Wish) (int, error)
 	UpdateWish(ctx context.Context, wish domain.Wish) error
+	UpdateWishReserving(ctx context.Context, wish domain.Wish) error
 	DeleteWish(ctx context.Context, wishId int) error
 }
 

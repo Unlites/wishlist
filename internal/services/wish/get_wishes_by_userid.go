@@ -16,8 +16,9 @@ func (ws *WishService) GetWishesByUserId(ctx context.Context, userId int) ([]dom
 
 	for i := range wishes {
 		if cctx.GetUserId(ctx) == userId {
-			// do not show isReserved for owner
+			// do not show reserving status for owner
 			wishes[i].IsReserved = nil
+			wishes[i].ReservedBy = nil
 		}
 	}
 

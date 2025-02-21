@@ -230,6 +230,13 @@ const App = {
         isOwnUser() {
             return localStorage.getItem('user_id') == this.$route.params.user_id;
         },
+        isReservedByUser(wish) {
+            if (!wish.reserved_by) {
+                return false;
+            }
+
+            return wish.reserved_by == localStorage.getItem('user_id');
+        },
         startWishUpdating(wish) {
             this.updateWish = { ...wish }; 
             this.updateWish.description = striptags(wish.description);            
@@ -271,8 +278,9 @@ const App = {
                         <h3 class="text-break">{{ wish.title }}</h3>
                         <p class="text-break" v-html="wish.description"></p>
                         <div class="mt-3">
-                            <div v-if="wish.is_reserved === true">
+                            <div v-if="wish.is_reserved === true" class="d-flex justify-content-center align-items-center flex-column">
                                 <button class="btn btn-primary px-5" disabled>Забронировано</button>
+                                <button v-if=isReservedByUser(wish) @click="updateWishReserving(wish.id, false)" class="btn btn-outline-danger px-2 py-1 mt-1">Снять бронь</button>
                             </div>
                             <div v-else-if="wish.is_reserved === false">
                                 <button @click="updateWishReserving(wish.id, true)" class="btn btn-outline-primary">Забронировать</button>

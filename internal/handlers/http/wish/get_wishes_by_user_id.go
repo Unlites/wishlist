@@ -15,6 +15,7 @@ type wishResponse struct {
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	IsReserved  *bool     `json:"is_reserved,omitempty"`
+	ReservedBy  *int      `json:"reserved_by,omitempty"`
 	UserId      int       `json:"user_id"`
 	CreatedAt   time.Time `json:"created_at"`
 }
@@ -46,6 +47,7 @@ func toWishResponses(wishes []domain.Wish) []wishResponse {
 			Title:       wish.Title,
 			Description: wish.Description,
 			IsReserved:  wish.IsReserved,
+			ReservedBy:  wish.ReservedBy,
 			UserId:      wish.UserId,
 			CreatedAt:   wish.CreatedAt,
 		}

@@ -33,8 +33,13 @@ func (wh *WishHandler) UpdateWishReserving(w http.ResponseWriter, r *http.Reques
 	if err := wh.service.UpdateWishReserving(ctx, wishIdInt, req.IsReserved); err != nil {
 		status := http.StatusInternalServerError
 
-		if errors.Is(err, domain.ErrNotFound) {
-			status = http.StatusUnauthorized
+		switch {
+		case errors.Is(err, domain.ErrNotFound):
+			status = http.StatusNotFound
+		case errors.Is(err, domain.ErrAlreadyProcessed):
+			status = http.StatusBadRequest
+		case errors.Is(err, domain.ErrForbidden):
+			status = http.StatusForbidden
 		}
 
 		http.Error(w, fmt.Errorf("service.UpdateWishReserving: %w", err).Error(), status)

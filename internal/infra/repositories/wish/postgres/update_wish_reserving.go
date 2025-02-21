@@ -7,7 +7,7 @@ import (
 	"github.com/Unlites/wishlist/internal/domain"
 )
 
-func (wrp *WishRepositoryPostgres) UpdateWish(ctx context.Context, wish domain.Wish) error {
+func (wrp *WishRepositoryPostgres) UpdateWishReserving(ctx context.Context, wish domain.Wish) error {
 	conn, err := wrp.pool.Acquire(ctx)
 	if err != nil {
 		return fmt.Errorf("pool.Acquire: %w", err)
@@ -16,14 +16,14 @@ func (wrp *WishRepositoryPostgres) UpdateWish(ctx context.Context, wish domain.W
 
 	query := `
 		UPDATE wishlist.wishes
-		SET title = $1, description = $2
+		SET is_reserved = $1, reserved_by = $2
 		WHERE id = $3
 	`
 
 	if _, err := conn.Exec(ctx,
 		query,
-		wish.Title,
-		wish.Description,
+		wish.IsReserved,
+		wish.ReservedBy,
 		wish.Id,
 	); err != nil {
 		return fmt.Errorf("conn.Exec: %w", err)

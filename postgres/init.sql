@@ -12,5 +12,6 @@ CREATE TABLE IF NOT EXISTS wishlist.wishes (
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     is_reserved BOOLEAN DEFAULT FALSE NOT NULL,
+    reserved_by INTEGER REFERENCES wishlist.users (id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
