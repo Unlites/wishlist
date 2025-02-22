@@ -15,6 +15,7 @@ import (
 type addWishRequest struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	Price       *int   `json:"price"`
 }
 
 func (r *addWishRequest) Validate() error {
@@ -22,6 +23,7 @@ func (r *addWishRequest) Validate() error {
 		r,
 		validation.Field(&r.Title, validation.Required, validation.Length(1, 300)),
 		validation.Field(&r.Description, validation.Length(1, 5000)),
+		validation.Field(&r.Price, validation.Min(1)),
 	)
 }
 
@@ -51,12 +53,10 @@ func (wh *WishHandler) AddWish(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isReserved := false
-
 	id, err := wh.service.AddWish(ctx, domain.Wish{
 		Title:       req.Title,
 		Description: req.Description,
-		IsReserved:  &isReserved,
+		Price:       req.Price,
 		UserId:      userIdInt,
 	})
 	if err != nil {

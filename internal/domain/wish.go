@@ -9,6 +9,7 @@ type Wish struct {
 	Description string
 	IsReserved  *bool
 	ReservedBy  *int
+	Price       *int
 	CreatedAt   time.Time
 }
 

@@ -16,14 +16,15 @@ func (wrp *WishRepositoryPostgres) UpdateWish(ctx context.Context, wish domain.W
 
 	query := `
 		UPDATE wishlist.wishes
-		SET title = $1, description = $2
-		WHERE id = $3
+		SET title = $1, description = $2, price = $3
+		WHERE id = $4
 	`
 
 	if _, err := conn.Exec(ctx,
 		query,
 		wish.Title,
 		wish.Description,
+		wish.Price,
 		wish.Id,
 	); err != nil {
 		return fmt.Errorf("conn.Exec: %w", err)

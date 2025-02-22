@@ -15,8 +15,8 @@ func (wrp *WishRepositoryPostgres) AddWish(ctx context.Context, wish domain.Wish
 	defer conn.Release()
 
 	query := `
-		INSERT INTO wishlist.wishes (title, description, is_reserved, user_id, created_at) 
-		VALUES ($1, $2, $3, $4, NOW()) RETURNING id
+		INSERT INTO wishlist.wishes (title, description, price, user_id) 
+		VALUES ($1, $2, $3, $4) RETURNING id
 	`
 
 	if err := conn.QueryRow(
@@ -24,7 +24,7 @@ func (wrp *WishRepositoryPostgres) AddWish(ctx context.Context, wish domain.Wish
 		query,
 		wish.Title,
 		wish.Description,
-		wish.IsReserved,
+		wish.Price,
 		wish.UserId,
 	).Scan(&wish.Id); err != nil {
 		return 0, fmt.Errorf("conn.QueryRow.Scan: %w", err)

@@ -17,7 +17,7 @@ func (wrp *WishRepositoryPostgres) GetWishById(ctx context.Context, wishId int) 
 	defer conn.Release()
 
 	query := `
-		SELECT id, title, description, is_reserved, reserved_by, user_id, created_at
+		SELECT id, title, description, price, is_reserved, reserved_by, user_id, created_at
 		FROM wishlist.wishes
 		WHERE id = $1
 	`
@@ -28,6 +28,7 @@ func (wrp *WishRepositoryPostgres) GetWishById(ctx context.Context, wishId int) 
 		&wish.Id,
 		&wish.Title,
 		&wish.Description,
+		&wish.Price,
 		&wish.IsReserved,
 		&wish.ReservedBy,
 		&wish.UserId,

@@ -67,7 +67,7 @@ const AuthPage = {
             } catch (error) {
                 if (error.response && error.response.data) {
                     if (error.response.status === 401) {
-                        alert('Неверный логин или пароль');
+                        alert('Неверный логин или пароль'); 
                     } else if (error.response.status === 400) {
                         alert('Пароль должен быть не менее 4 символов');
                     } else {
@@ -110,13 +110,14 @@ const App = {
             wishes: [],
             newWish: {
                 title: '',
-                description: ''
+                description: '',
+                price: null
             },
             updateWish: {
                 id: null,
                 title: '',
                 description: '',
-                is_reserved: false
+                price: null
             },
             error: null
         };
@@ -141,7 +142,7 @@ const App = {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                 });
                 this.wishes.push(response.data);
-                this.newWish = { title: '', description: '' };
+                this.newWish = { title: '', description: '', price: null };
                 await this.fetchWishes();
             } catch (error) {
                 if (error.response && error.response.data) {
@@ -163,10 +164,13 @@ const App = {
         },
         async updateWishDetails() {
             try {
+                if (this.updateWish.price === "") {
+                    this.updateWish.price = null;
+                }
                 await api.put(`${API_BASE_URL}/users/${this.$route.params.user_id}/wishes/${this.updateWish.id}`, this.updateWish, {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                 });
-                this.updateWish = { id: null, title: '', description: '', is_reserved: false };
+                this.updateWish = { id: null, title: '', description: '', price: null };
                 await this.fetchWishes();
             } catch (error) {
                 if (error.response && error.response.data) {
@@ -243,7 +247,7 @@ const App = {
             wish.isUpdating = true;
         },
         stopWishUpdating(wish) {
-            this.updateWish = { id: null, title: '', description: '', is_reserved: false };
+            this.updateWish = { id: null, title: '', description: '', price: null };
             wish.isUpdating = false;
         }
     },
@@ -261,7 +265,8 @@ const App = {
                 <h3>Новое желание</h3>
                 <input class="m-1" v-model="newWish.title" placeholder="Название" />
                 <textarea @keydown.enter.exact.prevent="$refs.addWishButton.click()" class="m-1" v-model="newWish.description" placeholder="Ссылка/описание" />
-                <button ref="addWishButton" class="m-1 btn btn-primary col-lg-6 mx-auto">Добавить желание</button>
+                <input type="number" min="1" step="any" class="m-1" v-model="newWish.price" placeholder="Цена (необязательно)" />
+                <button ref="addWishButton" class="mt-3 btn btn-primary col-lg-6 mx-auto">Добавить желание</button>
             </form>
 
             <div>
@@ -269,6 +274,7 @@ const App = {
                     <form @submit.prevent="updateWishDetails" v-if="wish.isUpdating" class="row text-center col-10 col-lg-8 mx-auto">
                         <input class="mt-2" v-model="updateWish.title" placeholder="Название" />
                         <textarea @keydown.enter.exact.prevent="updateWishDetails" class="mt-2" v-model="updateWish.description" placeholder="Ссылка/описание" />
+                        <input type="number" min="1" step="any" class="mt-2" v-model="updateWish.price" placeholder="Цена (необязательно)" />
                         <div class="mt-2">
                             <button ref="updateWishButton" class="m-1 btn btn-primary">Сохранить</button>
                             <button type="button" @click="stopWishUpdating(wish)" class="btn btn-outline-danger">Отмена</button>
@@ -277,6 +283,7 @@ const App = {
                     <div v-else>
                         <h3 class="text-break">{{ wish.title }}</h3>
                         <p class="text-break" v-html="wish.description"></p>
+                        <b v-if="wish.price">Цена: {{ wish.price }} руб.</b>
                         <div class="mt-3">
                             <div v-if="wish.is_reserved === true" class="d-flex justify-content-center align-items-center flex-column">
                                 <button class="btn btn-primary px-5" disabled>Забронировано</button>

@@ -14,6 +14,7 @@ import (
 type updateWishRequest struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	Price       *int   `json:"price"`
 }
 
 func (r *updateWishRequest) Validate() error {
@@ -21,6 +22,7 @@ func (r *updateWishRequest) Validate() error {
 		r,
 		validation.Field(&r.Title, validation.Required, validation.Length(1, 300)),
 		validation.Field(&r.Description, validation.Length(1, 5000)),
+		validation.Field(&r.Price, validation.Min(1)),
 	)
 }
 
@@ -63,6 +65,7 @@ func (wh *WishHandler) UpdateWish(w http.ResponseWriter, r *http.Request) {
 		Title:       req.Title,
 		Description: req.Description,
 		UserId:      userIdInt,
+		Price:       req.Price,
 	}); err != nil {
 		http.Error(w, fmt.Errorf("service.UpdateWish: %w", err).Error(), http.StatusInternalServerError)
 		return
