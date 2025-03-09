@@ -106,7 +106,11 @@ const AuthPage = {
 const App = {
     data() {
         return {
-            username: '',
+            user: {
+                username: '',
+                info: '',
+            },
+            isUserInfoUpdating: false,
             wishes: [],
             newWish: {
                 title: '',
@@ -216,14 +220,37 @@ const App = {
                 alert('Ошибка резервирования желания');
             }
         },
-        async fetchUsername() {
+        async fetchUser() {
             try {
                 const response = await api.get(`${API_BASE_URL}/users/${this.$route.params.user_id}`, {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                 });
-                this.username = response.data.name;
+                this.user.username = response.data.name;
+                this.user.info = response.data.info;
             } catch (error) {
                 alert('Ошибка загрузки пользователя');
+            }
+        },
+        async updateUserInfo() {
+            try {
+                await api.put(`${API_BASE_URL}/users/${this.$route.params.user_id}/info`,
+                    { info: this.user.info },
+                    { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } },
+                );
+                await this.fetchUser();
+                this.isUserInfoUpdating = false;
+            } catch (error) {
+                if (error.response && error.response.data) {
+                    if (error.response.status === 400) {
+                        if (error.response.data.includes('info: the length must be between 0 and 3000')) {
+                            alert('Информация не может быть больше 3000 символов');
+                        }
+                    } else {
+                        alert('Ошибка изменения информации для пользователей: ' + error.response.data);                        
+                    }
+                } else {
+                    alert('Ошибка изменения информации для пользователей'); 
+                }
             }
         },
         logout() {
@@ -252,16 +279,31 @@ const App = {
         }
     },
     mounted() {
-        this.fetchUsername();
+        this.fetchUser();
         this.fetchWishes();
     },
     template: `
     <div class="app p-3">
-        <h1 class="text-center">Wishlist {{ username }}</h1>
+        <div class="text-center">
+            <h1>Wishlist {{ user.username }}</h1>
+
+            <div class="mt-3" v-if="!isUserInfoUpdating">{{ user.info }}</div>
+            
+            <button v-if="isOwnUser() && !isUserInfoUpdating" class="btn btn-outline-primary mt-1" @click="isUserInfoUpdating = true"><span v-if="!user.info">Добавить</span><span v-else>Изменить</span> информацию для пользователей</button>
+            
+            <form @submit.prevent="updateUserInfo" v-if="isUserInfoUpdating" class="text-center row col-10 col-md-6 col-lg-6 mx-auto">
+                <textarea @keydown.enter.exact.prevent="updateUserInfo" v-model="user.info" placeholder='Например, "Удобнее получить на OZON, мой пункт выдачи на Пушкина 36"' class="mt-3" />
+                <div class="mt-2">
+                    <button class="m-1 btn btn-primary">Сохранить</button>
+                    <button type="button" @click="isUserInfoUpdating = false" class="btn btn-outline-danger">Отмена</button>
+                </div>
+            </form>
+            
+        </div>
         <hr>
 
         <div>
-            <form @submit.prevent="addWish" v-if="isOwnUser()" class="text-center m-5 row col-8 col-lg-3 mx-auto border border-2 border-dark px-3 py-5 rounded">
+            <form @submit.prevent="addWish" v-if="isOwnUser()" class="text-center m-5 row col-10 col-md-8 col-lg-6 col-xl-4 mx-auto border border-2 border-dark px-3 py-5 rounded">
                 <h3>Новое желание</h3>
                 <input class="m-1" v-model="newWish.title" placeholder="Название" />
                 <textarea @keydown.enter.exact.prevent="$refs.addWishButton.click()" class="m-1" v-model="newWish.description" placeholder="Ссылка/описание" />
@@ -270,13 +312,13 @@ const App = {
             </form>
 
             <div>
-                <div v-for="wish in wishes" :key="wish.id" class="text-center col-8 col-lg-6 m-3 border border-1 border-dark px-3 py-5 rounded mx-auto">
+                <div v-for="wish in wishes" :key="wish.id" class="text-center col-10 col-md-10 col-lg-8 col-xl-6 m-3 border border-1 border-dark px-3 py-5 rounded mx-auto">
                     <form @submit.prevent="updateWishDetails" v-if="wish.isUpdating" class="row text-center col-10 col-lg-8 mx-auto">
                         <input class="mt-2" v-model="updateWish.title" placeholder="Название" />
                         <textarea @keydown.enter.exact.prevent="updateWishDetails" class="mt-2" v-model="updateWish.description" placeholder="Ссылка/описание" />
                         <input type="number" min="1" step="any" class="mt-2" v-model="updateWish.price" placeholder="Цена (необязательно)" />
                         <div class="mt-2">
-                            <button ref="updateWishButton" class="m-1 btn btn-primary">Сохранить</button>
+                            <button class="m-1 btn btn-primary">Сохранить</button>
                             <button type="button" @click="stopWishUpdating(wish)" class="btn btn-outline-danger">Отмена</button>
                         </div>
                     </form>

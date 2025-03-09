@@ -3,7 +3,8 @@ CREATE SCHEMA IF NOT EXISTS wishlist;
 CREATE TABLE IF NOT EXISTS wishlist.users (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL
+    password_hash TEXT NOT NULL,
+    info TEXT
 );
 
 CREATE TABLE IF NOT EXISTS wishlist.wishes (

@@ -22,15 +22,13 @@ func (wh *WishHandler) UpdateWishReserving(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	ctx := r.Context()
-
 	var req updateWishReservingRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, fmt.Errorf("json.Decode: %w", err).Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := wh.service.UpdateWishReserving(ctx, wishIdInt, req.IsReserved); err != nil {
+	if err := wh.service.UpdateWishReserving(r.Context(), wishIdInt, req.IsReserved); err != nil {
 		status := http.StatusInternalServerError
 
 		switch {

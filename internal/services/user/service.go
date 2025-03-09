@@ -10,6 +10,7 @@ type UserRepository interface {
 	GetUserById(ctx context.Context, userId int) (domain.User, error)
 	GetUserByName(ctx context.Context, name string) (domain.User, error)
 	AddUser(ctx context.Context, user domain.User) (int, error)
+	UpdateUserInfo(ctx context.Context, userId int, info string) error
 }
 
 type Hasher interface {

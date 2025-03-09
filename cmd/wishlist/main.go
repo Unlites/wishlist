@@ -58,12 +58,10 @@ func main() {
 	mux := http.NewServeMux()
 
 	wishHandler := wishHandlerHttp.NewWishHandler(wishService, middlewareProvider)
-	userHandler := userHandlerHttp.NewUserHandler(userService)
+	userHandler := userHandlerHttp.NewUserHandler(userService, middlewareProvider)
 
 	wishHandler.RegisterRoutes(mux, "/api/v1/users/{user_id}/wishes")
 	userHandler.RegisterRoutes(mux, "/api/v1/users")
-
-	// handler := cors.AllowAll().Handler(mux)
 
 	srv := &http.Server{
 		Addr:         cfg.HttpServer.Address,

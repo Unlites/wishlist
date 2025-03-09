@@ -10,8 +10,9 @@ import (
 )
 
 type userResponse struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
+	Id   int     `json:"id"`
+	Name string  `json:"name"`
+	Info *string `json:"info,omitempty"`
 }
 
 func (uh *UserHandler) GetUserById(w http.ResponseWriter, r *http.Request) {
@@ -22,9 +23,7 @@ func (uh *UserHandler) GetUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := r.Context()
-
-	user, err := uh.service.GetUserById(ctx, userIdInt)
+	user, err := uh.service.GetUserById(r.Context(), userIdInt)
 	if err != nil {
 		http.Error(w, fmt.Errorf("service.GetWishesByUserId: %w", err).Error(), http.StatusInternalServerError)
 		return
@@ -37,5 +36,6 @@ func toUserResponse(user domain.User) userResponse {
 	return userResponse{
 		Id:   user.Id,
 		Name: user.Name,
+		Info: user.Info,
 	}
 }
