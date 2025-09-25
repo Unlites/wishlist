@@ -287,7 +287,7 @@ const App = {
         <div class="text-center">
             <h1>Wishlist {{ user.username }}</h1>
 
-            <div class="mt-3" v-if="!isUserInfoUpdating">{{ user.info }}</div>
+            <div class="mt-3" v-if="!isUserInfoUpdating" style="white-space: pre-line">{{ user.info }}</div>
             
             <button v-if="isOwnUser() && !isUserInfoUpdating" class="btn btn-outline-primary mt-1" @click="isUserInfoUpdating = true"><span v-if="!user.info">Добавить</span><span v-else>Изменить</span> информацию для пользователей</button>
             
