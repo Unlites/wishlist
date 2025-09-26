@@ -324,7 +324,7 @@ const App = {
                     </form>
                     <div v-else>
                         <h3 class="text-break">{{ wish.title }}</h3>
-                        <p class="text-break" v-html="wish.description"></p>
+                        <p class="text-break" v-html="wish.description" style="white-space: pre-line"></p>
                         <b v-if="wish.price">Цена: {{ wish.price }} руб.</b>
                         <div class="mt-3">
                             <div v-if="wish.is_reserved === true" class="d-flex justify-content-center align-items-center flex-column">
