@@ -62,6 +62,7 @@ const AuthPage = {
                 const tokenPayload = JSON.parse(atob(this.user.token.split('.')[1]));
                 localStorage.setItem('token', this.user.token);
                 localStorage.setItem('user_id', tokenPayload.sub);
+                localStorage.setItem('username', this.user.name);
                 const redirectTo = this.$route.query.from || `/${tokenPayload.sub}`;
                 this.$router.push(redirectTo);
             } catch (error) {
@@ -262,10 +263,14 @@ const App = {
         logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('user_id');
+            localStorage.removeItem('username');
             this.$router.push('/auth');
         },
         isOwnUser() {
             return localStorage.getItem('user_id') == this.$route.params.user_id;
+        },
+        getLoggedInUsername() {
+            return localStorage.getItem('username');
         },
         isReservedByUser(wish) {
             if (!wish.reserved_by) {
@@ -297,7 +302,7 @@ const App = {
                 </span>
                 <div class="d-flex align-items-center gap-3">
                     <span class="text-white-50 small d-none d-sm-inline">
-                        <i class="bi bi-person-circle me-1"></i>{{ user.username }}
+                        <i class="bi bi-person-circle me-1"></i>{{ getLoggedInUsername() }}
                     </span>
                     <button @click="logout" class="btn btn-outline-light btn-sm">
                         <i class="bi bi-box-arrow-right me-1"></i>Выйти
