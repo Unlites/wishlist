@@ -45,7 +45,7 @@ const AuthPage = {
                             alert('Такой пользователь уже существует');
                         }
                     } else {
-                        alert('Ошибка регистрации: ' + error.response.data);                        
+                        alert('Ошибка регистрации: ' + error.response.data);
                     }
                 } else {
                     alert('Ошибка регистрации, обратитесь к администратору');
@@ -59,7 +59,7 @@ const AuthPage = {
                     password: this.user.password
                 });
                 this.user.token = response.data.token;
-                const tokenPayload = JSON.parse(atob(this.user.token.split('.')[1]));                
+                const tokenPayload = JSON.parse(atob(this.user.token.split('.')[1]));
                 localStorage.setItem('token', this.user.token);
                 localStorage.setItem('user_id', tokenPayload.sub);
                 const redirectTo = this.$route.query.from || `/${tokenPayload.sub}`;
@@ -67,7 +67,7 @@ const AuthPage = {
             } catch (error) {
                 if (error.response && error.response.data) {
                     if (error.response.status === 401) {
-                        alert('Неверный логин или пароль'); 
+                        alert('Неверный логин или пароль');
                     } else if (error.response.status === 400) {
                         alert('Пароль должен быть не менее 4 символов');
                     } else {
@@ -76,30 +76,36 @@ const AuthPage = {
                 } else {
                     alert('Ошибка аутентификации, обратитесь к администратору');
                 }
-            }  
+            }
         }
     },
     template: `
-    <form @submit.prevent class="auth p-3">
-        <h1 class="text-center">Wishlist</h1>
-        <hr>
+    <div class="min-vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
+        <div class="card shadow-lg border-0 rounded-4 p-3" style="max-width: 420px; width: 100%;">
+            <div class="card-body">
+                <h1 class="text-center fw-bold mb-1" style="color: #4f46e5;">Wishlist</h1>
+                <p class="text-center text-muted mb-4">Список желаний</p>
 
-        <div class="text-center m-5 row col-10 col-lg-4 mx-auto border border-2 border-dark px-3 py-5 rounded">
-        <h3 class="text-center" v-if="!isRegister">
-            Вход | <a href="#" class="link-primary" @click="isRegister = true">Регистрация</a>
-        </h3>
-        <h3 class="text-center" v-else>
-            <a href="#" class="link-primary" @click="isRegister = fasle">Вход</a> | Регистрация
-        </h3>
+                <div class="d-flex justify-content-center mb-4">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn" :class="isRegister ? 'btn-outline-primary' : 'btn-primary'" @click="isRegister = false">Вход</button>
+                        <button type="button" class="btn" :class="isRegister ? 'btn-primary' : 'btn-outline-primary'" @click="isRegister = true">Регистрация</button>
+                    </div>
+                </div>
 
-        <input class="mt-2" v-model="user.name" placeholder="Логин" />
-            <input class="mt-2" v-model="user.password" type="password" placeholder="Пароль" />
-            <div>
-                <button v-if="isRegister" class="mt-3 btn btn-primary mx-auto px-5" @click="register">Зарегистрироваться</button>
-                <button v-else class="mt-3 btn btn-primary mx-auto px-5" @click="login">Войти</button>
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-semibold">Логин</label>
+                    <input class="form-control form-control-lg" v-model="user.name" placeholder="Введите логин" autocomplete="username" />
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-muted small fw-semibold">Пароль</label>
+                    <input class="form-control form-control-lg" v-model="user.password" type="password" placeholder="Введите пароль" autocomplete="current-password" />
+                </div>
+                <button v-if="isRegister" class="btn btn-primary w-100 py-2 fw-semibold" @click="register">Зарегистрироваться</button>
+                <button v-else class="btn btn-primary w-100 py-2 fw-semibold" @click="login">Войти</button>
             </div>
         </div>
-    </form>
+    </div>
     `
 };
 
@@ -187,10 +193,10 @@ const App = {
                             alert('Описание не может быть больше 5000 символов');
                         }
                     } else {
-                        alert('Ошибка обновления желания: ' + error.response.data);                        
+                        alert('Ошибка обновления желания: ' + error.response.data);
                     }
                 } else {
-                    alert('Ошибка обновления желания'); 
+                    alert('Ошибка обновления желания');
                 }
             }
         },
@@ -209,7 +215,7 @@ const App = {
         },
         async updateWishReserving(wishId, isReserved) {
             try {
-                await api.put(`${API_BASE_URL}/users/${this.$route.params.user_id}/wishes/${wishId}/update-reserving`, 
+                await api.put(`${API_BASE_URL}/users/${this.$route.params.user_id}/wishes/${wishId}/update-reserving`,
                     {
                         is_reserved: isReserved
                     }, {
@@ -246,10 +252,10 @@ const App = {
                             alert('Информация не может быть больше 3000 символов');
                         }
                     } else {
-                        alert('Ошибка изменения информации для пользователей: ' + error.response.data);                        
+                        alert('Ошибка изменения информации для пользователей: ' + error.response.data);
                     }
                 } else {
-                    alert('Ошибка изменения информации для пользователей'); 
+                    alert('Ошибка изменения информации для пользователей');
                 }
             }
         },
@@ -269,8 +275,8 @@ const App = {
             return wish.reserved_by == localStorage.getItem('user_id');
         },
         startWishUpdating(wish) {
-            this.updateWish = { ...wish }; 
-            this.updateWish.description = striptags(wish.description);            
+            this.updateWish = { ...wish };
+            this.updateWish.description = striptags(wish.description);
             wish.isUpdating = true;
         },
         stopWishUpdating(wish) {
@@ -283,69 +289,143 @@ const App = {
         this.fetchWishes();
     },
     template: `
-    <div class="app p-3">
-        <div class="text-center">
-            <h1>Wishlist {{ user.username }}</h1>
-
-            <div class="mt-3" v-if="!isUserInfoUpdating" style="white-space: pre-line">{{ user.info }}</div>
-            
-            <button v-if="isOwnUser() && !isUserInfoUpdating" class="btn btn-outline-primary mt-1" @click="isUserInfoUpdating = true"><span v-if="!user.info">Добавить</span><span v-else>Изменить</span> информацию для пользователей</button>
-            
-            <form @submit.prevent="updateUserInfo" v-if="isUserInfoUpdating" class="text-center row col-10 col-md-6 col-lg-6 mx-auto">
-                <textarea @keydown.enter.exact.prevent="updateUserInfo" v-model="user.info" placeholder='Например, "Удобнее получить на OZON, мой пункт выдачи на Пушкина 36"' class="mt-3" />
-                <div class="mt-2">
-                    <button class="m-1 btn btn-primary">Сохранить</button>
-                    <button type="button" @click="isUserInfoUpdating = false" class="btn btn-outline-danger">Отмена</button>
+    <div class="app">
+        <nav class="navbar navbar-expand navbar-dark shadow-sm" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
+            <div class="container">
+                <span class="navbar-brand fw-bold">
+                    <i class="bi bi-gift me-2"></i>Wishlist
+                </span>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-white-50 small d-none d-sm-inline">
+                        <i class="bi bi-person-circle me-1"></i>{{ user.username }}
+                    </span>
+                    <button @click="logout" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-box-arrow-right me-1"></i>Выйти
+                    </button>
                 </div>
-            </form>
-            
-        </div>
-        <hr>
+            </div>
+        </nav>
 
-        <div>
-            <form @submit.prevent="addWish" v-if="isOwnUser()" class="text-center m-5 row col-10 col-md-8 col-lg-6 col-xl-4 mx-auto border border-2 border-dark px-3 py-5 rounded">
-                <h3>Новое желание</h3>
-                <input class="m-1" v-model="newWish.title" placeholder="Название" />
-                <textarea @keydown.enter.exact.prevent="$refs.addWishButton.click()" class="m-1" v-model="newWish.description" placeholder="Ссылка/описание" />
-                <input type="number" min="1" step="any" class="m-1" v-model="newWish.price" placeholder="Цена (необязательно)" />
-                <button ref="addWishButton" class="mt-3 btn btn-primary col-lg-6 mx-auto">Добавить желание</button>
-            </form>
-
-            <div>
-                <div v-for="wish in wishes" :key="wish.id" class="text-center col-10 col-md-10 col-lg-8 col-xl-6 m-3 border border-1 border-dark px-3 py-5 rounded mx-auto">
-                    <form @submit.prevent="updateWishDetails" v-if="wish.isUpdating" class="row text-center col-10 col-lg-8 mx-auto">
-                        <input class="mt-2" v-model="updateWish.title" placeholder="Название" />
-                        <textarea @keydown.enter.exact.prevent="updateWishDetails" class="mt-2" v-model="updateWish.description" placeholder="Ссылка/описание" />
-                        <input type="number" min="1" step="any" class="mt-2" v-model="updateWish.price" placeholder="Цена (необязательно)" />
-                        <div class="mt-2">
-                            <button class="m-1 btn btn-primary">Сохранить</button>
-                            <button type="button" @click="stopWishUpdating(wish)" class="btn btn-outline-danger">Отмена</button>
+        <div class="container py-4">
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-body">
+                    <div v-if="!isUserInfoUpdating" class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title mb-1">
+                                <i class="bi bi-person-circle me-2" style="color: #4f46e5;"></i>{{ user.username }}
+                            </h5>
+                            <p v-if="user.info" class="text-muted mb-0" style="white-space: pre-line">{{ user.info }}</p>
+                            <p v-else class="text-muted fst-italic mb-0">Информация не добавлена</p>
+                        </div>
+                        <button v-if="isOwnUser()" class="btn btn-outline-secondary btn-sm flex-shrink-0" @click="isUserInfoUpdating = true">
+                            <i class="bi bi-pencil"></i>
+                            <span class="d-none d-sm-inline ms-1">{{ user.info ? 'Изменить' : 'Добавить' }}</span>
+                        </button>
+                    </div>
+                    <form v-else @submit.prevent="updateUserInfo">
+                        <h6 class="fw-semibold mb-2">{{ user.info ? 'Редактировать' : 'Добавить' }} информацию</h6>
+                        <textarea @keydown.enter.exact.prevent="updateUserInfo" class="form-control" v-model="user.info" placeholder='Например, "Удобнее получить на OZON, мой пункт выдачи на Пушкина 36"' rows="3"></textarea>
+                        <div class="mt-2 d-flex gap-2">
+                            <button class="btn btn-primary btn-sm">
+                                <i class="bi bi-check-lg me-1"></i>Сохранить
+                            </button>
+                            <button type="button" @click="isUserInfoUpdating = false" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-x-lg me-1"></i>Отмена
+                            </button>
                         </div>
                     </form>
-                    <div v-else>
-                        <h3 class="text-break">{{ wish.title }}</h3>
-                        <p class="text-break" v-html="wish.description" style="white-space: pre-line"></p>
-                        <b v-if="wish.price">Цена: {{ wish.price }} руб.</b>
-                        <div class="mt-3">
-                            <div v-if="wish.is_reserved === true" class="d-flex justify-content-center align-items-center flex-column">
-                                <button class="btn btn-primary px-5" disabled>Забронировано</button>
-                                <button v-if=isReservedByUser(wish) @click="updateWishReserving(wish.id, false)" class="btn btn-outline-danger px-2 py-1 mt-1">Снять бронь</button>
-                            </div>
-                            <div v-else-if="wish.is_reserved === false">
-                                <button @click="updateWishReserving(wish.id, true)" class="btn btn-outline-primary">Забронировать</button>
-                            </div>
-                            <div v-else>
-                                <button @click="startWishUpdating(wish)" class="btn btn-outline-dark m-1">Редактировать</button>
-                                <button @click="deleteWish(wish.id)" class="btn btn-outline-danger">Удалить</button>
+                </div>
+            </div>
+
+            <div v-if="isOwnUser()" class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-semibold mb-3">
+                        <i class="bi bi-plus-circle me-2" style="color: #4f46e5;"></i>Новое желание
+                    </h5>
+                    <form @submit.prevent="addWish">
+                        <div class="mb-2">
+                            <input class="form-control" v-model="newWish.title" placeholder="Название" />
+                        </div>
+                        <div class="mb-2">
+                            <textarea @keydown.enter.exact.prevent="$refs.addWishButton.click()" class="form-control" v-model="newWish.description" placeholder="Ссылка или описание" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <input type="number" min="1" step="any" class="form-control" v-model="newWish.price" placeholder="Цена (необязательно)" />
+                        </div>
+                        <button ref="addWishButton" class="btn btn-primary">
+                            <i class="bi bi-plus-lg me-1"></i>Добавить желание
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div v-if="wishes.length === 0" class="text-center py-5 empty-state">
+                <i class="bi bi-inbox" style="font-size: 3rem; color: #adb5bd;"></i>
+                <p class="text-muted fs-5 mt-2">Список желаний пуст</p>
+            </div>
+
+            <div class="row g-3" v-else>
+                <div v-for="wish in wishes" :key="wish.id" class="col-12 col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-3 h-100 wish-card">
+                        <div class="card-body d-flex flex-column">
+                            <form v-if="wish.isUpdating" @submit.prevent="updateWishDetails">
+                                <div class="mb-2">
+                                    <input class="form-control form-control-sm" v-model="updateWish.title" placeholder="Название" />
+                                </div>
+                                <div class="mb-2">
+                                    <textarea @keydown.enter.exact.prevent="updateWishDetails" class="form-control form-control-sm" v-model="updateWish.description" placeholder="Ссылка/описание" rows="2"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <input type="number" min="1" step="any" class="form-control form-control-sm" v-model="updateWish.price" placeholder="Цена" />
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="bi bi-check-lg me-1"></i>Сохранить
+                                    </button>
+                                    <button type="button" @click="stopWishUpdating(wish)" class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-x-lg me-1"></i>Отмена
+                                    </button>
+                                </div>
+                            </form>
+                            <div v-else class="d-flex flex-column h-100">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="card-title fw-semibold text-break mb-0">{{ wish.title }}</h5>
+                                </div>
+                                <p class="card-text text-muted flex-grow-1 text-break mb-2" v-html="wish.description" style="white-space: pre-line"></p>
+                                <div v-if="wish.price" class="mb-3">
+                                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 fs-6 fw-normal">
+                                        <i class="bi bi-currency-ruble me-1"></i>{{ wish.price }}
+                                    </span>
+                                </div>
+                                <div class="mt-auto">
+                                    <div v-if="wish.is_reserved === true" class="d-flex flex-column gap-1">
+                                        <button class="btn btn-success w-100" disabled>
+                                            <i class="bi bi-check-circle-fill me-1"></i>Забронировано
+                                        </button>
+                                        <button v-if="isReservedByUser(wish)" @click="updateWishReserving(wish.id, false)" class="btn btn-outline-danger btn-sm w-100">
+                                            <i class="bi bi-x-circle me-1"></i>Снять бронь
+                                        </button>
+                                    </div>
+                                    <div v-else-if="wish.is_reserved === false">
+                                        <button @click="updateWishReserving(wish.id, true)" class="btn btn-outline-primary w-100">
+                                            <i class="bi bi-hand-index-thumb me-1"></i>Забронировать
+                                        </button>
+                                    </div>
+                                    <div v-else class="d-flex gap-2">
+                                        <button @click="startWishUpdating(wish)" class="btn btn-outline-secondary flex-grow-1">
+                                            <i class="bi bi-pencil me-1"></i>Редактировать
+                                        </button>
+                                        <button @click="deleteWish(wish.id)" class="btn btn-outline-danger flex-grow-1">
+                                            <i class="bi bi-trash me-1"></i>Удалить
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <h2 class="text-center mt-5" v-if="wishes.length === 0">Список желаний пуст</h2>
             </div>
         </div>
-        <button @click="logout" class="btn btn-danger logout-btn">Выйти</button>
     </div>
     `
 };
@@ -354,8 +434,8 @@ const App = {
 const routes = [
     { path: '/auth', component: AuthPage },
     { path: '/:user_id', component: App, meta: { requiresAuth: true } },
-    { 
-        path: '/', 
+    {
+        path: '/',
         redirect: () => {
             const userId = localStorage.getItem('user_id');
             return userId ? `/${userId}` : '/auth';
@@ -369,7 +449,7 @@ const router = createRouter({
     routes
 });
 
-router.beforeEach((to, from, next) => {    
+router.beforeEach((to, from, next) => {
     if (to.meta.requiresAuth && !localStorage.getItem('token')) {
         next({ path: '/auth', query: { from: to.params.user_id } });
     } else {
